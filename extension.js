@@ -1,10 +1,11 @@
 /*
+ * Copyright 2012 Nedko Arnaudov <nedko@arnaudov.name>
  * Copyright 2011 Armin Köhler <orangeshirt at web.de>
  *
  * Thanks to Lorenzo Carbonell Cerezo and Miguel Angel Santamaría Rogado
  * which has written touchpad-indicator 
  * (https://launchpad.net/touchpad-indicator) as python app and inspired 
- * myself to write this extension for gnome-shell.
+ * Armin Köhler to write this extension for gnome-shell.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -38,24 +39,12 @@ const Conf = imports.misc.config;
 
 const ExtensionSystem = imports.ui.extensionSystem;
 
-//Why are functions renames without creating a deprecated pointer..?
-//Workaround...
-let currentArray = Conf.PACKAGE_VERSION.split('.');
-if (currentArray[0] == 3 && currentArray[1] < 3) {
-    var Extension = ExtensionSystem.extensions[
-                       "touchpad-indicator@orangeshirt"];
-    var ExtensionMeta = ExtensionSystem.extensionMeta[
-                            "touchpad-indicator@orangeshirt"];
-    var ExtensionPath = ExtensionMeta.path
-    var cleanActor = function(o) {return o.destroy_children();};
-} else {
-    var Extension = imports.misc.extensionUtils.getCurrentExtension();
-    var ExtensionMeta = Extension.metadata
-    var ExtensionPath = Extension.path
-    var cleanActor = function(o) {return o.destroy_all_children();};
-}
+var Extension = imports.misc.extensionUtils.getCurrentExtension();
+var ExtensionMeta = Extension.metadata
+var ExtensionPath = Extension.path
+var cleanActor = function(o) {return o.destroy_all_children();};
 
-const Gettext = imports.gettext.domain('touchpad-indicator@orangeshirt');
+const Gettext = imports.gettext.domain('tablet-computer@nedko.arnaudov.name');
 const _ = Gettext.gettext;
 
 const TOUCHPADS = new Array('touchpad','glidepoint','fingersensingpad',
@@ -85,7 +74,7 @@ const FORCE_DEBUG = false;
 var DEBUG_TO_FILE = false; // overwritten by settings
 var DEBUG_INFO = 'Extension '+ ExtensionMeta.name.toString() +': ';
 var DEBUG_LOG_FILE = GLib.build_filenamev([ExtensionPath,
-   'touchpad-indicator.log']);
+   'tablet.log']);
 var LOGS = "";
 
 // Disable Synclient manually to prevent errors
@@ -298,7 +287,7 @@ TouchpadNotificationSource.prototype = {
      __proto__:  MessageTray.Source.prototype,
 
     _init: function() {
-        MessageTray.Source.prototype._init.call(this, _("Touchpad Indicator"));
+        MessageTray.Source.prototype._init.call(this, _("Tablet Computer"));
         let icon = new St.Icon({ icon_name: 'input-touchpad',
                                  icon_type: St.IconType.SYMBOLIC,
                                  icon_size: this.ICON_SIZE
@@ -517,7 +506,7 @@ SettingsDialog.prototype = {
 			descHeight = 50,
 			
 			mainBox = this.actor = new St.BoxLayout({
-                style_class: "touchpadIndicator_dialog",
+                style_class: "tablet_dialog",
 				vertical: true,
 				x:Math.round((monitor.width - boxWidth)/2) + monitor.x,
 				y:Math.round((monitor.height - boxHeight)/2) + monitor.y,
@@ -679,7 +668,7 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
 			section = new St.BoxLayout({vertical: false, 
                 style:"padding: 5px"}),
 			button = new St.Button(
-                {style_class: "dialog_button touchpadIndicator_button",
+                {style_class: "dialog_button tablet_button",
                  reactive: true, can_focus: true, label: label});
 
 		this._createItemLabel(section, title, desc);
@@ -699,14 +688,14 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
             space = new St.BoxLayout({vertical: false, 
                 style:"padding-left: 30px"}),
 			button = new St.Button(
-                {style_class: "touchpadIndicator_checkBox",
+                {style_class: "tablet_checkBox",
                  reactive: true, can_focus: true, label: "X"}),
             button_empty = new St.Button(
-                {style_class: "touchpadIndicator_checkBox_empty",
+                {style_class: "tablet_checkBox_empty",
                  reactive: true, can_focus: true, label: " "}),
             labelGroup = new St.BoxLayout({vertical: true}),
 			label = new St.Label(
-                {style_class: "touchpadIndicator_checkBox_name", text: desc});
+                {style_class: "tablet_checkBox_name", text: desc});
 		labelGroup.add(label);
 
         section.add(space, {y_fill:false});
@@ -764,7 +753,7 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
 			section = new St.BoxLayout({vertical: false,
                 style:"padding: 5px"}),
 			combo = new PopupMenu.PopupComboBoxMenuItem({
-                style_class: "touchpadIndicator_combo"});
+                style_class: "tablet_combo"});
 			
 		this._createItemLabel(section, title, desc);
 		section.add(combo.actor, {y_fill:false});
@@ -1277,15 +1266,15 @@ PopupSwitchMenuItem.prototype = {
 };
 
 
-function touchpadIndicatorButton() {
+function TabletButton() {
     this._init();
 };
 
-touchpadIndicatorButton.prototype = {
+TabletButton.prototype = {
     __proto__: PanelMenu.SystemStatusButton.prototype,
 
     _init: function() {
-        logging('touchpadIndicatorButton._init()');
+        logging('TabletButton._init()');
         this.settings =	new SettingsContainer();
         this._loadConfig();
         this._load_excluded_mouses();
@@ -1303,12 +1292,12 @@ touchpadIndicatorButton.prototype = {
         this.xinput_is_installed = execute_sync('xinput --list');
 
         if (!this.xinput_is_installed) {
-            logging('touchpadIndicatorButton._init(): Can`t find Xinput');
+            logging('TabletButton._init(): Can`t find Xinput');
             this.settings.set_boolean('switch-if-mouse', false);
             this.settings.set_boolean('auto-switch-touchpad', false);
             this.settings.set_boolean('auto-switch-trackpoint', false);
         } else {
-            logging('touchpadIndicatorButton._init(): Xinput is installed');
+            logging('TabletButton._init(): Xinput is installed');
         }
 
         let switch_method_changed = false;
@@ -1440,7 +1429,7 @@ touchpadIndicatorButton.prototype = {
     },
 
     _onChangeIcon: function(write_setting) {
-        logging('touchpadIndicatorButton._onChangeIcon()');
+        logging('TabletButton._onChangeIcon()');
         if (!this._touchpad_enabled()) {
             PanelMenu.SystemStatusButton.prototype.setIcon.call(this,
                 'touchpad-disabled');
@@ -1459,7 +1448,7 @@ touchpadIndicatorButton.prototype = {
     },
 
     _onChangeSwitchMethod: function(old_method, new_method) {
-        logging('touchpadIndicatorButton._onChangeSwitchMethod()');
+        logging('TabletButton._onChangeSwitchMethod()');
         touchpad_enabled = this._CONF_touchpadEnabled;
         switch (old_method) {
             case METHOD.GCONF:
@@ -1481,7 +1470,7 @@ touchpadIndicatorButton.prototype = {
     },
 
     _onMousePlugged: function() {
-        logging('touchpadIndicatorButton._onMousePlugged()');
+        logging('TabletButton._onMousePlugged()');
         if (this._CONF_autoSwitchTouchpad ||
                 (this._CONF_autoSwitchTrackpoint &&
                 this.trackpoint.is_there_device)) {
@@ -1581,7 +1570,7 @@ touchpadIndicatorButton.prototype = {
     },
 
     _disable_touchpad: function() {
-        logging('touchpadIndicatorButton._disable_touchpad()');
+        logging('TabletButton._disable_touchpad()');
         switch (this._CONF_switchMethod) {
             case METHOD.GCONF:
                 this.settings.set_boolean('touchpad-enabled', false);
@@ -1613,7 +1602,7 @@ touchpadIndicatorButton.prototype = {
     },
 
     _enable_touchpad: function() {
-        logging('touchpadIndicatorButton._enable_touchpad()');
+        logging('TabletButton._enable_touchpad()');
         switch (this._CONF_switchMethod) {
             case METHOD.GCONF:
                 this.settings.set_boolean('touchpad-enabled', true);
@@ -1776,84 +1765,84 @@ touchpadIndicatorButton.prototype = {
 };
 
 
-let touchpadIndicator;
+let tablet;
 
 function onMenuSelect(actor, event) {
     logging('onMenuSelect: actor - "'+actor.toString()+'"');
     switch (actor.tag) {
         case 0:
             if (actor.state) {
-                touchpadIndicator._enable_touchpad();           
+                tablet._enable_touchpad();           
             } else {
-                touchpadIndicator._disable_touchpad();
+                tablet._disable_touchpad();
             }
             break;
         case 1:
             if (actor.state) {
-                touchpadIndicator._enable_trackpoint();
+                tablet._enable_trackpoint();
             } else {
-                touchpadIndicator._disable_trackpoint();
+                tablet._disable_trackpoint();
             }
             break;
         case 2:
             if (actor.state) {
-                touchpadIndicator._enable_fingertouch();
+                tablet._enable_fingertouch();
             } else {
-                touchpadIndicator._disable_fingertouch();
+                tablet._disable_fingertouch();
             }
             break;
         case 3:
             if (actor.state) {
-                touchpadIndicator._enable_pen();
+                tablet._enable_pen();
             } else {
-                touchpadIndicator._disable_pen();
+                tablet._disable_pen();
             }
             break;
         case 9:
-            touchpadIndicator._settings_menu();
+            tablet._settings_menu();
             break
     }
 };
 
 function onLoadConfig() {
-    touchpadIndicator._loadConfig();
+    tablet._loadConfig();
 };
 
 function onChangeIcon(write_setting) {
-    touchpadIndicator._onChangeIcon(write_setting);
+    tablet._onChangeIcon(write_setting);
 };
 
 function onSwitchGconf() {
-    touchpadIndicator.settings.set_boolean('touchpad-enabled',
-        touchpadIndicator.touchpad.get_boolean('touchpad-enabled'));
-    touchpadIndicator._onChangeIcon();
+    tablet.settings.set_boolean('touchpad-enabled',
+        tablet.touchpad.get_boolean('touchpad-enabled'));
+    tablet._onChangeIcon();
 };
 
 function onMousePlugged() {
-    touchpadIndicator._onMousePlugged();
+    tablet._onMousePlugged();
 };
 
 function onChangeSwitchMethod(old_method, new_method) {
-    touchpadIndicator._onChangeSwitchMethod(old_method, new_method);
+    tablet._onChangeSwitchMethod(old_method, new_method);
 };
 
 
 // Put your extension initialization code here
 function init(metadata) {
-    imports.gettext.bindtextdomain('touchpad-indicator@orangeshirt',
+    imports.gettext.bindtextdomain('tablet-computer@nedko.arnaudov.name',
         GLib.build_filenamev([metadata.path, 'locale']));
 };
 
 function enable() {
-    touchpadIndicator = new touchpadIndicatorButton;
-    Main.panel.addToStatusArea('touchpad-indicator', touchpadIndicator);
+    tablet = new TabletButton;
+    Main.panel.addToStatusArea('tablet-computer', tablet);
 
-    if(touchpadIndicator.settings.get_boolean("first-time"))
+    if(tablet.settings.get_boolean("first-time"))
         TIMEOUT_SETTINGSDIALOG = Mainloop.timeout_add(3000,
             Lang.bind(this, function() {
                 TIMEOUT_SETTINGSDIALOG = false;
-                new SettingsDialog(touchpadIndicator);
-                touchpadIndicator.settings.set_boolean("first-time", false);
+                new SettingsDialog(tablet);
+                tablet.settings.set_boolean("first-time", false);
             }));
 };
 
@@ -1862,6 +1851,6 @@ function disable() {
         Mainloop.source_remove(TIMEOUT_SETTINGSDIALOG);
         TIMEOUT_SETTINGSDIALOG = false;
     }
-    touchpadIndicator._disconnect_signals();
-    touchpadIndicator.destroy();
+    tablet._disconnect_signals();
+    tablet.destroy();
 };
