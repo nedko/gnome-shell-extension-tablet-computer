@@ -93,6 +93,12 @@ var USE_SYNCLIENT = true;
 
 var TIMEOUT_SETTINGSDIALOG = false;
 
+function log_to_file(message) {
+    let lc = new Gio.Cancellable();
+    let lf = new Gio.File.new_for_path(DEBUG_LOG_FILE);
+    let ls = lf.append_to(0, lc)
+    ls.write(message, lc)
+}
 
 function logging(message) {
     if (DEBUG || FORCE_DEBUG) {
@@ -101,7 +107,7 @@ function logging(message) {
         message = timestamp + "    " + message + "\n";
         LOGS += message;
         if (DEBUG_TO_FILE) {
-            GLib.file_set_contents(DEBUG_LOG_FILE, LOGS);
+	    log_to_file(message);
         }
     }
 };
