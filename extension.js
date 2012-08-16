@@ -1,5 +1,6 @@
 /*
  * Copyright 2012 Nedko Arnaudov <nedko@arnaudov.name>
+ * Copyright (C) Luis Medinas 2012 <lmedinas@gmail.com>
  * Copyright 2011 Armin Köhler <orangeshirt at web.de>
  *
  * Thanks to Lorenzo Carbonell Cerezo and Miguel Angel Santamaría Rogado
@@ -36,6 +37,7 @@ const Mainloop = imports.mainloop;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Conf = imports.misc.config;
+const DBus = imports.dbus;
 
 const ExtensionSystem = imports.ui.extensionSystem;
 
@@ -1265,6 +1267,17 @@ PopupSwitchMenuItem.prototype = {
     }
 };
 
+const BrightnessIface = {
+    name: 'org.gnome.SettingsDaemon.Power.Screen',
+    methods:
+    [
+	{ name: 'GetPercentage', inSignature: '',  outSignature: 'u'},
+	{ name: 'StepDown', inSignature: '', outSignature: 'u' },
+	{ name: 'SetPercentage', inSignature: 'u', outSignature: 'u' }
+    ]
+};
+
+let BrightnessDbus = DBus.makeProxyClass(BrightnessIface);
 
 function TabletButton() {
     this._init();
@@ -1340,6 +1353,25 @@ TabletButton.prototype = {
 
         PanelMenu.SystemStatusButton.prototype._init.call(this,
             'input-touchpad');
+
+	let _proxy = new BrightnessDbus(DBus.session, 'org.gnome.SettingsDaemon', '/org/gnome/SettingsDaemon/Power');
+	_proxy.GetPercentageRemote(Lang.bind(this, function (result, error) {
+	    if (error) {
+                this._BrightnessSlider.setValue(1);
+	    } else {
+		let value = result / 100;
+		this._BrightnessSlider.setValue(value);
+	    }
+	}));
+
+        this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Brightness"), { reactive: false }));
+	this._BrightnessSlider = new PopupMenu.PopupSliderMenuItem(0);
+	this.menu.addMenuItem(this._BrightnessSlider);
+	this._BrightnessSlider.connect('value-changed', function(item) {
+	    let val = item._value * 100;
+	    _proxy.SetPercentageRemote(val);
+	});
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         this._touchpadItem = new PopupSwitchMenuItem(_("Touchpad"), 0,
             this._touchpad_enabled(), onMenuSelect);
