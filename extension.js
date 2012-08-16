@@ -69,6 +69,8 @@ const METHOD = {
 // Settings
 const TOUCHPAD_SETTINGS_SCHEMA = 
     'org.gnome.settings-daemon.peripherals.touchpad';
+const A11Y_APPLICATIONS_SETTINGS_SCHEMA =
+    'org.gnome.desktop.a11y.applications';
 
 // Debug Mode Settings
 var DEBUG = false; // overwritten by settings
@@ -1292,6 +1294,8 @@ TabletButton.prototype = {
         this._loadConfig();
         this._load_excluded_mouses();
 
+        this.a11y_applications_settings = getSettings(A11Y_APPLICATIONS_SETTINGS_SCHEMA);
+
         this.touchpad = getSettings(TOUCHPAD_SETTINGS_SCHEMA);
         if (this._CONF_possibleTouchpad != "-") {
             ALL_TOUCHPADS[TOUCHPADS.length] = 
@@ -1372,6 +1376,23 @@ TabletButton.prototype = {
 	    _proxy.SetPercentageRemote(val);
 	});
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
+        this._screenKeyboardItem = new PopupSwitchMenuItem(
+	    _("Screen Keyboard"),
+	    null,
+	    this.a11y_applications_settings.get_boolean("screen-keyboard-enabled"),
+	    Lang.bind(this, function() {
+		let val = this.a11y_applications_settings.get_boolean("screen-keyboard-enabled");
+                logging("ui-toggle: onscreen keyboard, " + val);
+		this.a11y_applications_settings.set_boolean("screen-keyboard-enabled", !val);
+	    }));
+        this.menu.addMenuItem(this._screenKeyboardItem);
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        this.a11y_applications_settings.connect('changed::screen-keyboard-enabled', Lang.bind(this, function() {
+	    let val = this.a11y_applications_settings.get_boolean("screen-keyboard-enabled");
+	    logging("gsettings: onscreen keyboard changed to " + val);
+	    this._screenKeyboardItem.setToggleState(val);
+	}));
 
         this._touchpadItem = new PopupSwitchMenuItem(_("Touchpad"), 0,
             this._touchpad_enabled(), onMenuSelect);
