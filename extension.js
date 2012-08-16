@@ -1249,6 +1249,9 @@ let rotations = [ [ GnomeDesktop.RRRotation.ROTATION_0, N_("Normal") ],
 		  [ GnomeDesktop.RRRotation.ROTATION_180, N_("Upside-down") ]
 		];
 
+let wacom_rotations = [ "none", "ccw", "cw","half" ];
+let wacom_devices = [ 10, 11, 16 ]; // FIXME: use xsetwacom or xinput to find ids of wacom devices
+
 const XRandr2Iface = {
     name: 'org.gnome.SettingsDaemon.XRANDR_2',
     methods: [
@@ -1317,6 +1320,11 @@ Rotate.prototype = {
                     config.save();
 
                     output.set_rotation(bitmask);
+
+		    // ugly workaround for wacom support. settings-daemon xrandr plugin is supposed to handle this instead
+		    for (let w = 0; w < wacom_devices.length; w++)
+			GLib.spawn_command_line_async('xsetwacom set ' + wacom_devices[w] + ' rotate ' + wacom_rotations[bitmask-1]);
+
                     try {
                         config.save();
                         this._proxy.ApplyConfigurationRemote(0, event.get_time());
