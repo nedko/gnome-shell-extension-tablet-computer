@@ -1244,13 +1244,12 @@ const possibleRotations = [ GnomeDesktop.RRRotation.ROTATION_0,
                             GnomeDesktop.RRRotation.ROTATION_270
                           ];
 
-let rotations = [ [ GnomeDesktop.RRRotation.ROTATION_0, N_("Normal") ],
-                  [ GnomeDesktop.RRRotation.ROTATION_90, N_("Left") ],
-                  [ GnomeDesktop.RRRotation.ROTATION_270, N_("Right") ],
-                  [ GnomeDesktop.RRRotation.ROTATION_180, N_("Upside-down") ]
+let rotations = [ [ GnomeDesktop.RRRotation.ROTATION_0,   "none", N_("Normal") ],
+                  [ GnomeDesktop.RRRotation.ROTATION_90,  "ccw",  N_("Left") ],
+                  [ GnomeDesktop.RRRotation.ROTATION_270, "cw",   N_("Right") ],
+                  [ GnomeDesktop.RRRotation.ROTATION_180, "half", N_("Upside-down") ]
                 ];
 
-let wacom_rotations = [ "none", "ccw", "cw","half" ];
 let wacom_devices = [ 10, 11, 16 ]; // FIXME: use xsetwacom or xinput to find ids of wacom devices
 
 const XRandr2Iface = {
@@ -1338,7 +1337,7 @@ Rotate.prototype = {
         let allowedRotations = this._getAllowedRotations(config, output);
         let currentRotation = output.get_rotation();
         for (let i = 0; i < rotations.length; i++) {
-            let [bitmask, name] = rotations[i];
+            let [bitmask, wacom, name] = rotations[i];
             if (bitmask & allowedRotations) {
                 let item = new PopupMenu.PopupMenuItem(Gettext.gettext(name));
                 if (bitmask & currentRotation)
@@ -1350,8 +1349,9 @@ Rotate.prototype = {
                     output.set_rotation(bitmask);
 
                     // ugly workaround for wacom support. settings-daemon xrandr plugin is supposed to handle this instead
+                    logging("" + bitmask + "," + wacom);
                     for (let w = 0; w < wacom_devices.length; w++)
-                        GLib.spawn_command_line_async('xsetwacom set ' + wacom_devices[w] + ' rotate ' + wacom_rotations[bitmask-1]);
+                        GLib.spawn_command_line_async('xsetwacom set ' + wacom_devices[w] + ' rotate ' + wacom);
 
                     try {
                         config.save();
