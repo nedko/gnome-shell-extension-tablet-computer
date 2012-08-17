@@ -1278,24 +1278,51 @@ Rotate.prototype = {
             return;
         }
 
-        this._createMenu();
-        this._screen.connect('changed', Lang.bind(this, this._randrEvent));
+        this.menuitems = [];
+        this._recreateMenu();
+        this._screen.connect('changed', Lang.bind(this, this._recreateMenu));
     },
 
-    _randrEvent: function() {
-        this.menu.removeAll();
-        this._createMenu();
+    _addMenuItem: function(item) {
+	if (this.position == undefined)
+	{
+	    this.position = this.menu._getMenuItems().length;
+	    if (this.position > 0) this.position--;
+	}
+	this.menuitems.push(item);
+	this.menu.addMenuItem(item, this.position + this.menuitems.length);
     },
 
-    _createMenu: function() {
+    _addAction: function(title, callback) {
+        let menuItem = new PopupMenuItem(title);
+        this._addMenuItem(menuItem);
+        menuItem.connect('activate', Lang.bind(this, function (menuItem, event) {
+            callback(event);
+        }));
+    },
+
+    _clearMenu: function() {
+        let children = this.menu._getMenuItems();
+        for (let i = 0; i < children.length; i++) {
+            for (let j = 0; j < this.menuitems.length; j++) {
+		let item = children[i];
+		if (item === this.menuitems[j])
+		    item.destroy();
+	    }
+        }
+	this.menuitems = [];
+    },
+
+    _recreateMenu: function() {
+	this._clearMenu();
         let config = GnomeDesktop.RRConfig.new_current(this._screen);
         let outputs = config.get_outputs();
         for (let i = 0; i < outputs.length; i++) {
             if (outputs[i].is_connected())
                 this._addOutputItem(config, outputs[i]);
         }
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
-        this.menu.addAction(_("Configure display settings..."), function() {
+        this._addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        this._addAction(_("Configure display settings..."), function() {
             GLib.spawn_command_line_async('gnome-control-center display');
         });
     },
@@ -1305,7 +1332,7 @@ Rotate.prototype = {
         item.label.add_style_class_name('display-subtitle');
         item.actor.reactive = false;
         item.actor.can_focus = false;
-        this.menu.addMenuItem(item);
+        this._addMenuItem(item);
 
         let allowedRotations = this._getAllowedRotations(config, output);
         let currentRotation = output.get_rotation();
@@ -1332,7 +1359,7 @@ Rotate.prototype = {
                         log ('Could not save monitor configuration: ' + e);
                     }
                 }));
-                this.menu.addMenuItem(item);
+                this._addMenuItem(item);
             }
         }
     },
