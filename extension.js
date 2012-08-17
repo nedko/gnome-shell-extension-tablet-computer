@@ -1256,6 +1256,7 @@ const XRandr2Iface = {
     name: 'org.gnome.SettingsDaemon.XRANDR_2',
     methods: [
         { name: 'ApplyConfiguration', inSignature: 'xx', outSignature: '' },
+        { name: 'RotateTo', inSignature: 'ix', outSignature: '' },
     ]
 };
 let XRandr2 = DBus.makeProxyClass(XRandr2Iface);
@@ -1343,19 +1344,13 @@ Rotate.prototype = {
                 if (bitmask & currentRotation)
                     item.setShowDot(true);
                 item.connect('activate', Lang.bind(this, function(item, event) {
-                    /* ensure config is saved so we get a backup if anything goes wrong */
-                    config.save();
-
-                    output.set_rotation(bitmask);
-
                     // ugly workaround for wacom support. settings-daemon xrandr plugin is supposed to handle this instead
                     logging("" + bitmask + "," + wacom);
                     for (let w = 0; w < wacom_devices.length; w++)
                         GLib.spawn_command_line_async('xsetwacom set ' + wacom_devices[w] + ' rotate ' + wacom);
 
                     try {
-                        config.save();
-                        this._proxy.ApplyConfigurationRemote(0, event.get_time());
+                        this._proxy.RotateToRemote(bitmask, event.get_time());
                     } catch (e) {
                         log ('Could not save monitor configuration: ' + e);
                     }
