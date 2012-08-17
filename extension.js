@@ -82,7 +82,7 @@ const FORCE_DEBUG = false;
 var DEBUG_TO_FILE = false; // overwritten by settings
 var DEBUG_INFO = 'Extension '+ ExtensionMeta.name.toString() +': ';
 var DEBUG_LOG_FILE = GLib.build_filenamev([ExtensionPath,
-   'tablet.log']);
+                                           'tablet.log']);
 var LOGS = "";
 
 // Disable Synclient manually to prevent errors
@@ -104,7 +104,7 @@ function logging(message) {
         message = timestamp + "    " + message + "\n";
         LOGS += message;
         if (DEBUG_TO_FILE) {
-        log_to_file(message);
+            log_to_file(message);
         }
     }
 };
@@ -152,9 +152,9 @@ function list_mouse_devices() {
     let comp = execute_sync('cat /proc/bus/input/devices');
     if (comp) {
         let where = comp[1].toString().split("\n\n"),
-            mouses = new Array(),
-            name,
-            hits = 0;
+        mouses = new Array(),
+        name,
+        hits = 0;
         for (let x = 0; x < where.length; x++) {
             if (!(where[x].indexOf('mouse') == -1)) {
                 let data = where[x].toString().split("\n");
@@ -162,7 +162,7 @@ function list_mouse_devices() {
                     if (!(data[z].indexOf("N: Name=") == -1)) {
                         name = data[z].split("\"")[1];
                         logging('list_mouse_devices(): Device found: '
-                            + name.toString());
+                                + name.toString());
                         mouses[hits] = name.toString();
                         hits++;
                     }
@@ -190,9 +190,9 @@ function search_touchpads() {
         for (let x = 0; x < where.length; x++) {
             for (let tpd = 0; tpd < TOUCHPADS.length; tpd++) {
                 if (!(where[x].toLowerCase().indexOf(
-                        TOUCHPADS[tpd].toString()) == -1)) {
+                    TOUCHPADS[tpd].toString()) == -1)) {
                     logging('search_touchpads(): Touchpad found: '
-                        + where[x].toString());
+                            + where[x].toString());
                     if (hits > 0)
                         touchpads += " | ";
                     touchpads += where[x].toString();
@@ -214,43 +214,43 @@ function search_touchpads() {
 function list_mouses(skip_excluded) {
     logging('list_mouses()');
     let where = list_mouse_devices(),
-        mouses = new Array(false, []);
+    mouses = new Array(false, []);
     if (where[0]) {
         where = where[1];
         let hits = 0;
         for (let x = 0; x < where.length; x++) {
             for (let tpd = 0; tpd < TOUCHPADS.length; tpd++) {
                 if (!(where[x].toLowerCase().indexOf(
-                        TOUCHPADS[tpd].toString()) == -1)) {
+                    TOUCHPADS[tpd].toString()) == -1)) {
                     logging('list_mouses(): Touchpad found: '
-                        + where[x].toString());
+                            + where[x].toString());
                     hits++;
                     break;
                 }
             }
             for (let tpt = 0; tpt < TRACKPOINTS.length; tpt++) {
                 if (!(where[x].toLowerCase().indexOf(
-                        TRACKPOINTS[tpt].toString()) == -1)) {
+                    TRACKPOINTS[tpt].toString()) == -1)) {
                     logging('list_mouses(): Trackpoint found: '
-                        + where[x].toString());
+                            + where[x].toString());
                     hits++;
                     break;
                 }
             }
             for (let tch = 0; tch < FINGER_TOUCHES.length; tch++) {
                 if (!(where[x].toLowerCase().indexOf(
-                        FINGER_TOUCHES[tch].toString()) == -1)) {
+                    FINGER_TOUCHES[tch].toString()) == -1)) {
                     logging('list_mouses(): Fingertouch found: '
-                        + where[x].toString());
+                            + where[x].toString());
                     hits++;
                     break;
                 }
             }
             for (let pen = 0; pen < PENS.length; pen++) {
                 if (!(where[x].toLowerCase().indexOf(
-                        PENS[pen].toString()) == -1)) {
+                    PENS[pen].toString()) == -1)) {
                     logging('list_mouses(): Pen found: '
-                        + where[x].toString());
+                            + where[x].toString());
                     hits++;
                     break;
                 }
@@ -258,17 +258,17 @@ function list_mouses(skip_excluded) {
             if (skip_excluded) {
                 for (let oth = 0; oth < ALL_OTHERS.length; oth++) {
                     if (!(where[x].toLowerCase().indexOf(
-                            ALL_OTHERS[oth].toString()) == -1)) {
+                        ALL_OTHERS[oth].toString()) == -1)) {
                         hits++;
                         logging('list_mouses(): Other device to ignore'
-                            + ' found: '+ where[x].toString());
+                                + ' found: '+ where[x].toString());
                         break;
                     }
                 }
             }
             if (hits == 0) {
                 logging('list_mouses(): Mouse found: '
-                    + where[x].toString());
+                        + where[x].toString());
                 mouses[0] = true;
                 mouses[1][mouses[1].length] = where[x].toString();
             } else {
@@ -292,7 +292,7 @@ function TouchpadNotificationSource() {
 };
 
 TouchpadNotificationSource.prototype = {
-     __proto__:  MessageTray.Source.prototype,
+    __proto__:  MessageTray.Source.prototype,
 
     _init: function() {
         MessageTray.Source.prototype._init.call(this, _("Tablet Computer"));
@@ -330,7 +330,7 @@ function notify(device, title, text) {
                              icon_size: msg_source.ICON_SIZE
                            });
     device._notification = new MessageTray.Notification(msg_source, title,
-        text, { icon: icon });
+                                                        text, { icon: icon });
     device._notification.setUrgency(MessageTray.Urgency.LOW);
     device._notification.setTransient(true);
     device._notification.connect('destroy', function() {
@@ -366,8 +366,8 @@ SettingsContainer.prototype = {
                 this._conf = JSON.parse(data);
             else {
                 logging('SettingsContainer._init(): Something is wrong... I '
-                    + 'was not able to load the settings... I will restore '
-                    + 'the default settings instead.');
+                        + 'was not able to load the settings... I will restore '
+                        + 'the default settings instead.');
                 this.restoreDefault();
             }
             //no error: I want to be able to save it anyway
@@ -375,8 +375,8 @@ SettingsContainer.prototype = {
         }
         else {
             logging('SettingsContainer._init(): Uh, there are no settings '
-                + 'saved for that Box. I will use the default settings '
-                + 'instead.');
+                    + 'saved for that Box. I will use the default settings '
+                    + 'instead.');
             this.restoreDefault();
         }
     },
@@ -410,7 +410,7 @@ SettingsContainer.prototype = {
 
     _take_data: function(k, v, noEmit) {
         logging('SettingsContainer._take_data():  "'+ k.toString()
-            + '" value "'+ v.toString() +'"');
+                + '" value "'+ v.toString() +'"');
         this._conf[k] = v;
         if(!noEmit) {
             this.save_data();
@@ -430,19 +430,19 @@ SettingsContainer.prototype = {
             }
             else {
                 logging('SettingsContainer.restoreDefault(): Something is '
-                    + 'terribly wrong! I was not able to load the default '
-                    + 'settings... I won\'t save anything in this session. And '
-                    + 'don\'t blame me, if touchpad-indicator is acting '
-                    + 'strangely...');
+                        + 'terribly wrong! I was not able to load the default '
+                        + 'settings... I won\'t save anything in this session. And '
+                        + 'don\'t blame me, if touchpad-indicator is acting '
+                        + 'strangely...');
                 this._error = true;
             }
         }
         else {
             logging('SettingsContainer.restoreDefault(): Something is '
-                + 'terribly wrong! Neither your settings nor the default '
-                + 'settings seem to exist... I won\'t save anything in this '
-                + 'session. And don\'t blame me, if touchpad-indicator is '
-                + 'acting strangely...');
+                    + 'terribly wrong! Neither your settings nor the default '
+                    + 'settings seem to exist... I won\'t save anything in this '
+                    + 'session. And don\'t blame me, if touchpad-indicator is '
+                    + 'acting strangely...');
             this._error = true;
         }
         this.save_data();
@@ -457,11 +457,11 @@ SettingsContainer.prototype = {
     save_data: function() {
         if(!this._error) {
             this._file.replace_contents(JSON.stringify(this._conf), null,
-                false, 0, null);
+                                        false, 0, null);
             logging('SettingsContainer._save_data(): Done');
         } else {
             logging('SettingsContainer._save_data(): I really want to save '
-                + 'that. But there was an error before...');
+                    + 'that. But there was an error before...');
         }
     },
 
@@ -506,66 +506,66 @@ SettingsDialog.prototype = {
         this.monitorId = LayoutManager.primaryIndex;
 
         let monitor = LayoutManager.monitors[this.monitorId],
-            padding = 10,
-            boxWidth = Math.round(monitor.width/2),
-            boxHeight = Math.round(monitor.height/2),
-            naviWidth = 200,
-            headerHeight = 40,
-            descHeight = 50,
+        padding = 10,
+        boxWidth = Math.round(monitor.width/2),
+        boxHeight = Math.round(monitor.height/2),
+        naviWidth = 200,
+        headerHeight = 40,
+        descHeight = 50,
 
-            mainBox = this.actor = new St.BoxLayout({
-                style_class: "tablet_dialog",
-                vertical: true,
-                x:Math.round((monitor.width - boxWidth)/2) + monitor.x,
-                y:Math.round((monitor.height - boxHeight)/2) + monitor.y,
-                width: boxWidth + padding*2,
-                height: boxHeight + padding*2,
-            }),
-            navi = this._navi = new St.BoxLayout({style_class: "naviLine",
-                vertical: true,
-                x:padding,
-                y:padding,
-                width: naviWidth,
-                height: boxHeight
-            }),
-            scrollBox = new St.ScrollView({style_class: "contentBox",
-                x:naviWidth + padding,
-                y:headerHeight + padding,
-                width: boxWidth-naviWidth,
-                height: boxHeight-headerHeight
-            }),
-            content = new St.BoxLayout({vertical: true}),
-            closeButton = new St.Button({style_class: "dialog_button",
-                label:"x", x: padding + boxWidth-50, y:padding});
+        mainBox = this.actor = new St.BoxLayout({
+            style_class: "tablet_dialog",
+            vertical: true,
+            x:Math.round((monitor.width - boxWidth)/2) + monitor.x,
+            y:Math.round((monitor.height - boxHeight)/2) + monitor.y,
+            width: boxWidth + padding*2,
+            height: boxHeight + padding*2,
+        }),
+        navi = this._navi = new St.BoxLayout({style_class: "naviLine",
+                                              vertical: true,
+                                              x:padding,
+                                              y:padding,
+                                              width: naviWidth,
+                                              height: boxHeight
+                                             }),
+        scrollBox = new St.ScrollView({style_class: "contentBox",
+                                       x:naviWidth + padding,
+                                       y:headerHeight + padding,
+                                       width: boxWidth-naviWidth,
+                                       height: boxHeight-headerHeight
+                                      }),
+        content = new St.BoxLayout({vertical: true}),
+        closeButton = new St.Button({style_class: "dialog_button",
+                                     label:"x", x: padding + boxWidth-50, y:padding});
 
         mainBox.add(navi);
         mainBox.add(scrollBox);
-            scrollBox.add_actor(content);
-                this._descline = new St.Label({style_class: "descLine"});
-                this._descline.clutter_text.line_wrap = true;
-                content.add(this._descline);
+        scrollBox.add_actor(content);
+        this._descline = new St.Label({style_class: "descLine"});
+        this._descline.clutter_text.line_wrap = true;
+        content.add(this._descline);
 
-                let t = new PopupMenu.PopupMenuSection(content);
-                this._group = new PopupMenu.PopupComboMenu(t);
-                t.addActor(this._group.actor);
-                content.add(t.actor);
+        let t = new PopupMenu.PopupMenuSection(content);
+        this._group = new PopupMenu.PopupComboMenu(t);
+        t.addActor(this._group.actor);
+        content.add(t.actor);
 
         this._headline = new St.Label({style_class: "headerLine",
-            x: naviWidth + padding,
-            y: padding, width: boxWidth - naviWidth,
-            height: headerHeight});
+                                       x: naviWidth + padding,
+                                       y: padding, width: boxWidth - naviWidth,
+                                       height: headerHeight});
         mainBox.add(this._headline);
 
         closeButton.connect("button-release-event", Lang.bind(this,
-            this.close));
+                                                              this.close));
         mainBox.add(closeButton);
 
         this._undoButton = new St.Button({ style_class: "dialog_button",
-            x: padding + boxWidth - 180,
-            y: padding, reactive: true,
-            can_focus: true, label: _("Undo")});
+                                           x: padding + boxWidth - 180,
+                                           y: padding, reactive: true,
+                                           can_focus: true, label: _("Undo")});
         this._undoButton.connect("button-release-event", Lang.bind(this,
-            this.undoChanges));
+                                                                   this.undoChanges));
         mainBox.add(this._undoButton);
         this._undoButton.hide();
 
@@ -574,7 +574,7 @@ SettingsDialog.prototype = {
 
         this._chapters = [];
         this._addChapter(_("Welcome"),
-            this._welcome, _("These settings allow you to customize this extension to your needs. You can open this dialog again by clicking on the extension's icon and selecting Indicator Settings.\n\
+                         this._welcome, _("These settings allow you to customize this extension to your needs. You can open this dialog again by clicking on the extension's icon and selecting Indicator Settings.\n\
 \n\
 Please feel free to contact me if you find bugs or have suggestions, criticisms, or feedback. I am always happy to receive feedback - whatever kind. :-) \n\
 \n\
@@ -582,11 +582,11 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
 
         this._addChapter(_("General"), this._global, "");
         this._addChapter(_("Auto Switch"), this._auto_switch,
-            _("Define the behaviour if a mouse is (un)plugged."));
+                         _("Define the behaviour if a mouse is (un)plugged."));
         this._addChapter(_("Debug"), this._debug,
-            _("Settings for debugging the extension."));
+                         _("Settings for debugging the extension."));
         this._addChapter(_("Debug Log"), this._debug_log,
-            _("The debug log since last restart, if debugging is enabled."));
+                         _("The debug log since last restart, if debugging is enabled."));
         if(!this._settings.get_boolean('first-time'))
             if (chapter) {
                 this._setChapter(chapter);
@@ -616,9 +616,9 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
         let b = new St.Button({label: t});
 
         b.connect("button-release-event", Lang.bind(this,
-            function(actor, event, c) {
-                this._setChapter(c);
-            }, this._chapters.length));
+                                                    function(actor, event, c) {
+                                                        this._setChapter(c);
+                                                    }, this._chapters.length));
 
         this._navi.add(b, {x_fill: false, x_align: St.Align.START});
 
@@ -645,7 +645,7 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
 
     _createItemLabel: function(section, title, desc) {
         let labelGroup = new St.BoxLayout({vertical: true}),
-            label = new St.Label({style_class: "item_title", text: title});
+        label = new St.Label({style_class: "item_title", text: title});
 
         labelGroup.add(label);
         if(desc) {
@@ -673,37 +673,37 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
 
     _createButton: function(title, desc, label, doIt) {
         let settings = this._settings,
-            section = new St.BoxLayout({vertical: false,
-                style:"padding: 5px"}),
-            button = new St.Button(
-                {style_class: "dialog_button tablet_button",
-                 reactive: true, can_focus: true, label: label});
+        section = new St.BoxLayout({vertical: false,
+                                    style:"padding: 5px"}),
+        button = new St.Button(
+            {style_class: "dialog_button tablet_button",
+             reactive: true, can_focus: true, label: label});
 
         this._createItemLabel(section, title, desc);
         section.add(button, {y_fill:false});
         this._group.addActor(section, {x_fill: true});
         button.connect("button-release-event", Lang.bind(this, function() {
-                this._undoButton.show();
-                if(doIt)
-                    doIt();
-            }));
+            this._undoButton.show();
+            if(doIt)
+                doIt();
+        }));
     },
 
     _createCheckBox: function(desc, state, doIt) {
         let settings = this._settings,
-            section = new St.BoxLayout({vertical: false,
-                style:"padding: 2px"}),
-            space = new St.BoxLayout({vertical: false,
-                style:"padding-left: 30px"}),
-            button = new St.Button(
-                {style_class: "tablet_checkBox",
-                 reactive: true, can_focus: true, label: "X"}),
-            button_empty = new St.Button(
-                {style_class: "tablet_checkBox_empty",
-                 reactive: true, can_focus: true, label: " "}),
-            labelGroup = new St.BoxLayout({vertical: true}),
-            label = new St.Label(
-                {style_class: "tablet_checkBox_name", text: desc});
+        section = new St.BoxLayout({vertical: false,
+                                    style:"padding: 2px"}),
+        space = new St.BoxLayout({vertical: false,
+                                  style:"padding-left: 30px"}),
+        button = new St.Button(
+            {style_class: "tablet_checkBox",
+             reactive: true, can_focus: true, label: "X"}),
+        button_empty = new St.Button(
+            {style_class: "tablet_checkBox_empty",
+             reactive: true, can_focus: true, label: " "}),
+        labelGroup = new St.BoxLayout({vertical: true}),
+        label = new St.Label(
+            {style_class: "tablet_checkBox_name", text: desc});
         labelGroup.add(label);
 
         section.add(space, {y_fill:false});
@@ -717,27 +717,27 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
             button.hide();
         }
         button.connect("button-release-event", Lang.bind(this, function() {
-                this._undoButton.show();
-                button.hide();
-                button_empty.show()
-                if(doIt)
-                    doIt(desc, false);
-            }));
+            this._undoButton.show();
+            button.hide();
+            button_empty.show()
+            if(doIt)
+                doIt(desc, false);
+        }));
         button_empty.connect("button-release-event", Lang.bind(this, function() {
-                this._undoButton.show();
-                button.show();
-                button_empty.hide()
-                if(doIt)
-                    doIt(desc, true);
-            }));
+            this._undoButton.show();
+            button.show();
+            button_empty.hide()
+            if(doIt)
+                doIt(desc, true);
+        }));
     },
 
     _createSwitch: function(switched, settingsUrl, title, desc, doIt) {
         let settings = this._settings,
-            section = new St.BoxLayout({vertical: false,
-                style:"padding: 5px"}),
-            button = new St.Button({reactive: true, can_focus: false}),
-            switchObj = new PopupMenu.Switch(switched);
+        section = new St.BoxLayout({vertical: false,
+                                    style:"padding: 5px"}),
+        button = new St.Button({reactive: true, can_focus: false}),
+        switchObj = new PopupMenu.Switch(switched);
 
         this._createItemLabel(section, title, desc);
         button.set_child(switchObj.actor);
@@ -745,12 +745,12 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
         this._group.addActor(section, {x_fill: true});
 
         button.connect("button-press-event", Lang.bind(this, function() {
-                switchObj.toggle();
-                this._undoButton.show();
-                if(doIt)
-                    doIt(switchObj.state);
-                settings.set_boolean(settingsUrl, switchObj.state);
-            }));
+            switchObj.toggle();
+            this._undoButton.show();
+            if(doIt)
+                doIt(switchObj.state);
+            settings.set_boolean(settingsUrl, switchObj.state);
+        }));
 
         switchObj._mySection = section;
         return switchObj;
@@ -758,38 +758,38 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
 
     _createCombo: function(value, settingsUrl, items, title, desc, fu) {
         let settings = this._settings,
-            section = new St.BoxLayout({vertical: false,
-                style:"padding: 5px"}),
-            combo = new PopupMenu.PopupComboBoxMenuItem({
-                style_class: "tablet_combo"});
+        section = new St.BoxLayout({vertical: false,
+                                    style:"padding: 5px"}),
+        combo = new PopupMenu.PopupComboBoxMenuItem({
+            style_class: "tablet_combo"});
 
         this._createItemLabel(section, title, desc);
         section.add(combo.actor, {y_fill:false});
         this._group.addActor(section, {x_fill: true});
 
         items.forEach(function(o) {
-                let item = new PopupMenu.PopupMenuItem(_(o[0]));
-                combo.addMenuItem(item, o[1]);
-            });
+            let item = new PopupMenu.PopupMenuItem(_(o[0]));
+            combo.addMenuItem(item, o[1]);
+        });
         combo.setActiveItem(value);
         combo.connect("active-item-changed",
-            Lang.bind(this, fu || function(menuItem, id) {
-                this._undoButton.show();
-                settings.set_enum(settingsUrl, id);
-                if(fu)
-                    fu();
-            })
-        );
+                      Lang.bind(this, fu || function(menuItem, id) {
+                          this._undoButton.show();
+                          settings.set_enum(settingsUrl, id);
+                          if(fu)
+                              fu();
+                      })
+                     );
     },
 
     _welcome: function() {
         logging('SettingsDialog._welcome()');
         this._createSwitch(this._indicator._CONF_firstTime, 'first-time',
-            _("First time startup"));
+                           _("First time startup"));
         if (!this._touchpad[0]) {
             this._createSeparator();
             this._createLabel(_("Attention - No Touchpad Detected"),
-                _("The extension could not detect a touchpad at the moment.\nYou'll find further information in the Debug section."));
+                              _("The extension could not detect a touchpad at the moment.\nYou'll find further information in the Debug section."));
         }
     },
 
@@ -818,20 +818,20 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
                 switch_to = number;
         }
         this._createCombo(switch_to, 'switch-method', items,
-            _("Switch Method"), _("Method by which to switch the touchpad."),
-            function(menuItem, id) {
-                this._undoButton.show();
-                let old_method = indicator._CONF_switchMethod;
-                settings.set_enum("switch-method", methods[id]);
-                onChangeSwitchMethod(old_method, methods[id]);
-            });
+                          _("Switch Method"), _("Method by which to switch the touchpad."),
+                          function(menuItem, id) {
+                              this._undoButton.show();
+                              let old_method = indicator._CONF_switchMethod;
+                              settings.set_enum("switch-method", methods[id]);
+                              onChangeSwitchMethod(old_method, methods[id]);
+                          });
         this._createSeparator();
         this._createButton(_("Restore Defaults"),
-            _("Restore the default settings."), _("Restore Defaults"),
-            function() {
-                settings.restoreDefault();
-                settings.set_boolean("first-time", false);
-            });
+                           _("Restore the default settings."), _("Restore Defaults"),
+                           function() {
+                               settings.restoreDefault();
+                               settings.set_boolean("first-time", false);
+                           });
     },
 
     _auto_switch: function() {
@@ -841,23 +841,23 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
         let mouses = list_mouses();
 
         this._createSwitch(indicator._CONF_autoSwitchTouchpad,
-            'auto-switch-touchpad',
-            _("Automatically switch Touchpad On/Off"),
-            _("Turns the touchpad on or off automatically if a mouse is (un)plugged."));
+                           'auto-switch-touchpad',
+                           _("Automatically switch Touchpad On/Off"),
+                           _("Turns the touchpad on or off automatically if a mouse is (un)plugged."));
         if (indicator.trackpoint.is_there_device) {
             this._createSwitch(indicator._CONF_autoSwitchTrackpoint,
-                'auto-switch-trackpoint',
-                _("Automatically switch Trackpoint On/Off"),
-                _("Turns trackpoint automatically on or off if a mouse is (un)plugged."));
+                               'auto-switch-trackpoint',
+                               _("Automatically switch Trackpoint On/Off"),
+                               _("Turns trackpoint automatically on or off if a mouse is (un)plugged."));
         }
         this._createSeparator();
         this._createSwitch(indicator._CONF_showNotifications,
-            'show-notifications',
-            _("Show notification"),
-            _("Show notifications if the touchpad or the trackpoint is automatically switched on or off."));
+                           'show-notifications',
+                           _("Show notification"),
+                           _("Show notifications if the touchpad or the trackpoint is automatically switched on or off."));
         this._createSeparator();
         this._createLabel(_("Exclude mouse device from autodetection"),
-                    _("Here you can choose some mouse devices to be excluded from autodetection, like your IR Remote Control or something similar.\nAll chosen devices are ignored."));
+                          _("Here you can choose some mouse devices to be excluded from autodetection, like your IR Remote Control or something similar.\nAll chosen devices are ignored."));
 
         if (mouses[0]) {
             for (let x = 0; x < mouses[1].length; x++) {
@@ -865,11 +865,11 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
                 if (indicator._CONF_excludedMouses[mouses[1][x]])
                     exclude = true;
                 this._createCheckBox(mouses[1][x], exclude,
-                    function(name, state) {
-                        let dict = indicator._CONF_excludedMouses;
-                        dict[name] = state;
-                        settings.set_dict("excluded-mouses", dict);
-                    });
+                                     function(name, state) {
+                                         let dict = indicator._CONF_excludedMouses;
+                                         dict[name] = state;
+                                         settings.set_dict("excluded-mouses", dict);
+                                     });
             }
         }
     },
@@ -880,16 +880,16 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
         let indicator = this._indicator;
 
         this._createSwitch(indicator._CONF_debug, 'debug',
-            _("Debug log"), _("Turns the debug log on or off."),
-            Lang.bind(this, function(s) {
-                if(s)
-                    this._debug_to_file._mySection.show();
-                else
-                    this._debug_to_file._mySection.hide();
-            }));
+                           _("Debug log"), _("Turns the debug log on or off."),
+                           Lang.bind(this, function(s) {
+                               if(s)
+                                   this._debug_to_file._mySection.show();
+                               else
+                                   this._debug_to_file._mySection.hide();
+                           }));
         this._debug_to_file = this._createSwitch(indicator._CONF_debugToFile,
-            'debug-to-file', _("Write debug information to file."),
-            _("All debug logs are additionally written to the file 'touchpad-indicator.log' in the extension directory.\nAttention!\nThis feature will slow down the startup of gnome-shell and the usage of the extension."));
+                                                 'debug-to-file', _("Write debug information to file."),
+                                                 _("All debug logs are additionally written to the file 'touchpad-indicator.log' in the extension directory.\nAttention!\nThis feature will slow down the startup of gnome-shell and the usage of the extension."));
         if (!indicator._CONF_debug)
             this._debug_to_file._mySection.hide();
         this._createSeparator();
@@ -908,11 +908,11 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
                 mouse = mouses[1].toString();
             }
             this._createLabel(_("Warning - No Touchpad Detected"),
-                _("The extension could not detect a touchpad at the moment.\nPerhaps your touchpad is not detected correctly by the kernel.\nThe following devices are detected as mice:\n") + mouse);
+                              _("The extension could not detect a touchpad at the moment.\nPerhaps your touchpad is not detected correctly by the kernel.\nThe following devices are detected as mice:\n") + mouse);
 
             if (mouses[0] && indicator.xinput_is_installed) {
                 this._createLabel(_("Try to find the touchpad"),
-                    _("You could try to find a possible touchpad.\nBelow you could choose the possible touchpad from the list of the detected mice. In most cases you should choose the entry 'PS/2 Generic Mouse' if available.\nThe switch method will be automatically switched to Xinput, because only with Xinput it is possible to switch an undetected touchpad.\n"));
+                                  _("You could try to find a possible touchpad.\nBelow you could choose the possible touchpad from the list of the detected mice. In most cases you should choose the entry 'PS/2 Generic Mouse' if available.\nThe switch method will be automatically switched to Xinput, because only with Xinput it is possible to switch an undetected touchpad.\n"));
                 let items = new Array(), number = 1, choosen = 0;
                 items[0] = ["-", 0];
                 mouses[1].forEach(function(o) {
@@ -923,13 +923,13 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
                     number++;
                 });
                 this._createCombo(choosen, 'possible-touchpad', items,
-                    _("Choose possible touchpad"),
-                    _("You can choose the mouse entry which could be the touchpad."),
-                    function(menuItem, id) {
-                        this._undoButton.show();
-                        settings.set_text("possible-touchpad", items[id][0]);
-                    }
-                );
+                                  _("Choose possible touchpad"),
+                                  _("You can choose the mouse entry which could be the touchpad."),
+                                  function(menuItem, id) {
+                                      this._undoButton.show();
+                                      settings.set_text("possible-touchpad", items[id][0]);
+                                  }
+                                 );
                 if (indicator._CONF_switchMethod != METHOD.XINPUT) {
                     let tpd_on = true;
                     if (!indicator._touchpad_enabled()) {
@@ -942,14 +942,14 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
                 }
             } else {
                 this._createLabel(_("No Xinput installed"),
-                    _("If you install 'xinput' on your pc, the extension could try to switch an undetected touchpad.\nPlease install 'xinput' and reload gnome-shell to enable this feature."));
+                                  _("If you install 'xinput' on your pc, the extension could try to switch an undetected touchpad.\nPlease install 'xinput' and reload gnome-shell to enable this feature."));
             }
             this._createSeparator();
         }
         let shellversion = (_("Gnome Shell Version: ") + Conf.PACKAGE_VERSION
-            + "\n");
+                            + "\n");
         let indicatorversion = (_("Touchpad Indicator Version: ")
-            + ExtensionMeta['version'].toString() + "\n");
+                                + ExtensionMeta['version'].toString() + "\n");
         let touchpad = _("Touchpad(s): ") + this._touchpad[1];
         let xinput = _("Xinput: ");
         if (indicator.xinput_is_installed) {
@@ -964,8 +964,8 @@ Contact me on github (https://github.com/orangeshirt/gnome-shell-extension-touch
             synclient = synclient + _("Not found or used on your system.\n");
         }
         this._createLabel(_("Debug Informations"),
-            _("Here you find some information about your system which might be helpful in debugging.\n\n")
-            + shellversion + indicatorversion + touchpad + synclient + xinput);
+                          _("Here you find some information about your system which might be helpful in debugging.\n\n")
+                          + shellversion + indicatorversion + touchpad + synclient + xinput);
     },
 
     _debug_log: function() {
@@ -1000,7 +1000,7 @@ Synclient.prototype = {
     _is_synclient_in_use: function() {
         if (!USE_SYNCLIENT) {
             logging('Synclient._is_synclient_in_use(): synclient manually '
-                + 'disabled');
+                    + 'disabled');
             return false;
         }
         this.output = execute_sync('synclient -l');
@@ -1014,23 +1014,23 @@ Synclient.prototype = {
         }
         for (let x = 0; x < this.output.length; x++) {
             if (typeof(this.output[x]) == "object" &&
-                    this.output[x].length > 0) {
-                 if (!(this.output[x].toString().indexOf(
-                        "Couldn't find synaptics properties") == -1)) {
+                this.output[x].length > 0) {
+                if (!(this.output[x].toString().indexOf(
+                    "Couldn't find synaptics properties") == -1)) {
                     logging('Synclient._is_synclient_in_use(): no properties '
-                        + 'found');
+                            + 'found');
                     return false;
                 }
                 if (!(this.output[x].toString().indexOf(
-                        "TouchpadOff") == -1)) {
+                    "TouchpadOff") == -1)) {
                     logging('Synclient._is_synclient_in_use(): synclient '
-                        + 'found and ready to use');
+                            + 'found and ready to use');
                     return true;
                 }
             }
         }
         logging('Synclient.__is_synclient_in_use(): unknown situation - '
-            + 'Return false');
+                + 'Return false');
         return false;
     },
 
@@ -1058,7 +1058,7 @@ Synclient.prototype = {
                     parts = this.touchpad_off.split("= ");
                     state = !to_boolean(parts[1]);
                     logging('Synclient._watch: Touchpad state changed to '
-                        + state.toString());
+                            + state.toString());
                     this.settings.set_boolean('touchpad-enabled', state);
                     onChangeIcon(false);
                     this.synclient_status = this.touchpad_off;
@@ -1125,7 +1125,7 @@ XInput.prototype = {
         this.ids = this._get_ids();
         this.is_there_device = this._is_there_device();
         logging('Found Device - ' + this.is_there_device.toString() +
-            ' ' + this.ids);
+                ' ' + this.ids);
     },
 
     _get_ids: function() {
@@ -1149,9 +1149,9 @@ XInput.prototype = {
             let y = 0;
             for (let line = 0; line < lines.length; line++) {
                 if (lines[line].indexOf('pointer')!=-1) {
-                     devids[y] = lines[line].toString().split('=')[1].
-                            split('[')[0].split('\t')[0];
-                     y++;
+                    devids[y] = lines[line].toString().split('=')[1].
+                        split('[')[0].split('\t')[0];
+                    y++;
                 }
             }
         }
@@ -1184,13 +1184,13 @@ XInput.prototype = {
     _set_device_enabled: function(id) {
         logging('XInput._set_device_enabled() id: '+id.toString());
         return execute_async('xinput set-prop ' + id.toString()
-            + ' "Device Enabled" 1');
+                             + ' "Device Enabled" 1');
     },
 
     _set_device_disabled: function(id) {
         logging('XInput._set_device_disabled() id: '+id.toString());
         return execute_async('xinput set-prop ' + id.toString()
-            + ' "Device Enabled" 0');
+                             + ' "Device Enabled" 0');
     },
 
     _disable_all_devices: function() {
@@ -1214,9 +1214,9 @@ XInput.prototype = {
             lines = lines[1].toString().split('\n');
             for (let line = 0; line < lines.length; line++) {
                 if (lines[line].toString().toLowerCase().indexOf(
-                        'device enabled') != -1) {
+                    'device enabled') != -1) {
                     if (lines[line].toString().split(':')[1].indexOf('1')
-                            != -1) {
+                        != -1) {
                         return true;
                     }
                 }
@@ -1239,16 +1239,16 @@ XInput.prototype = {
 };
 
 const possibleRotations = [ GnomeDesktop.RRRotation.ROTATION_0,
-                GnomeDesktop.RRRotation.ROTATION_90,
-                GnomeDesktop.RRRotation.ROTATION_180,
-                GnomeDesktop.RRRotation.ROTATION_270
-              ];
+                            GnomeDesktop.RRRotation.ROTATION_90,
+                            GnomeDesktop.RRRotation.ROTATION_180,
+                            GnomeDesktop.RRRotation.ROTATION_270
+                          ];
 
 let rotations = [ [ GnomeDesktop.RRRotation.ROTATION_0, N_("Normal") ],
-          [ GnomeDesktop.RRRotation.ROTATION_90, N_("Left") ],
-          [ GnomeDesktop.RRRotation.ROTATION_270, N_("Right") ],
-          [ GnomeDesktop.RRRotation.ROTATION_180, N_("Upside-down") ]
-        ];
+                  [ GnomeDesktop.RRRotation.ROTATION_90, N_("Left") ],
+                  [ GnomeDesktop.RRRotation.ROTATION_270, N_("Right") ],
+                  [ GnomeDesktop.RRRotation.ROTATION_180, N_("Upside-down") ]
+                ];
 
 let wacom_rotations = [ "none", "ccw", "cw","half" ];
 let wacom_devices = [ 10, 11, 16 ]; // FIXME: use xsetwacom or xinput to find ids of wacom devices
@@ -1256,7 +1256,7 @@ let wacom_devices = [ 10, 11, 16 ]; // FIXME: use xsetwacom or xinput to find id
 const XRandr2Iface = {
     name: 'org.gnome.SettingsDaemon.XRANDR_2',
     methods: [
-    { name: 'ApplyConfiguration', inSignature: 'xx', outSignature: '' },
+        { name: 'ApplyConfiguration', inSignature: 'xx', outSignature: '' },
     ]
 };
 let XRandr2 = DBus.makeProxyClass(XRandr2Iface);
@@ -1268,7 +1268,7 @@ function Rotate() {
 Rotate.prototype = {
     _init: function(menu) {
         logging('Rotate._init(' + menu + ')');
-    this.menu = menu;
+        this.menu = menu;
         this._proxy = new XRandr2(DBus.session, 'org.gnome.SettingsDaemon', '/org/gnome/SettingsDaemon/XRANDR');
 
         try {
@@ -1285,13 +1285,13 @@ Rotate.prototype = {
     },
 
     _addMenuItem: function(item) {
-    if (this.position == undefined)
-    {
-        this.position = this.menu._getMenuItems().length;
-        if (this.position > 0) this.position--;
-    }
-    this.menuitems.push(item);
-    this.menu.addMenuItem(item, this.position + this.menuitems.length);
+        if (this.position == undefined)
+        {
+            this.position = this.menu._getMenuItems().length;
+            if (this.position > 0) this.position--;
+        }
+        this.menuitems.push(item);
+        this.menu.addMenuItem(item, this.position + this.menuitems.length);
     },
 
     _addAction: function(title, callback) {
@@ -1306,16 +1306,16 @@ Rotate.prototype = {
         let children = this.menu._getMenuItems();
         for (let i = 0; i < children.length; i++) {
             for (let j = 0; j < this.menuitems.length; j++) {
-        let item = children[i];
-        if (item === this.menuitems[j])
-            item.destroy();
+                let item = children[i];
+                if (item === this.menuitems[j])
+                    item.destroy();
+            }
         }
-        }
-    this.menuitems = [];
+        this.menuitems = [];
     },
 
     _recreateMenu: function() {
-    this._clearMenu();
+        this._clearMenu();
         let config = GnomeDesktop.RRConfig.new_current(this._screen);
         let outputs = config.get_outputs();
         for (let i = 0; i < outputs.length; i++) {
@@ -1349,9 +1349,9 @@ Rotate.prototype = {
 
                     output.set_rotation(bitmask);
 
-            // ugly workaround for wacom support. settings-daemon xrandr plugin is supposed to handle this instead
-            for (let w = 0; w < wacom_devices.length; w++)
-            GLib.spawn_command_line_async('xsetwacom set ' + wacom_devices[w] + ' rotate ' + wacom_rotations[bitmask-1]);
+                    // ugly workaround for wacom support. settings-daemon xrandr plugin is supposed to handle this instead
+                    for (let w = 0; w < wacom_devices.length; w++)
+                        GLib.spawn_command_line_async('xsetwacom set ' + wacom_devices[w] + ' rotate ' + wacom_rotations[bitmask-1]);
 
                     try {
                         config.save();
@@ -1426,9 +1426,9 @@ const BrightnessIface = {
     name: 'org.gnome.SettingsDaemon.Power.Screen',
     methods:
     [
-    { name: 'GetPercentage', inSignature: '',  outSignature: 'u'},
-    { name: 'StepDown', inSignature: '', outSignature: 'u' },
-    { name: 'SetPercentage', inSignature: 'u', outSignature: 'u' }
+        { name: 'GetPercentage', inSignature: '',  outSignature: 'u'},
+        { name: 'StepDown', inSignature: '', outSignature: 'u' },
+        { name: 'SetPercentage', inSignature: 'u', outSignature: 'u' }
     ]
 };
 
@@ -1472,7 +1472,7 @@ TabletButton.prototype = {
 
         let switch_method_changed = false;
         if (METHOD.SYNCLIENT == this._CONF_switchMethod &&
-                !this.synclient.synclient_in_use) {
+            !this.synclient.synclient_in_use) {
             this._CONF_switchMethod = METHOD.GCONF;
             switch_method_changed = true;
         }
@@ -1484,7 +1484,7 @@ TabletButton.prototype = {
 
         if (METHOD.GCONF == this._CONF_switchMethod) {
             this.touchpad.set_boolean('touchpad-enabled',
-                this._CONF_touchpadEnabled);
+                                      this._CONF_touchpadEnabled);
         } else if (METHOD.SYNCLIENT == this._CONF_switchMethod) {
             if (this._CONF_touchpadEnabled) {
                 this.synclient._enable();
@@ -1509,54 +1509,54 @@ TabletButton.prototype = {
             this.pen._disable_all_devices();
 
         PanelMenu.SystemStatusButton.prototype._init.call(this,
-            'input-touchpad');
+                                                          'input-touchpad');
 
-    let _proxy = new BrightnessDbus(DBus.session, 'org.gnome.SettingsDaemon', '/org/gnome/SettingsDaemon/Power');
-    _proxy.GetPercentageRemote(Lang.bind(this, function (result, error) {
-        if (error) {
+        let _proxy = new BrightnessDbus(DBus.session, 'org.gnome.SettingsDaemon', '/org/gnome/SettingsDaemon/Power');
+        _proxy.GetPercentageRemote(Lang.bind(this, function (result, error) {
+            if (error) {
                 this._BrightnessSlider.setValue(1);
-        } else {
-        let value = result / 100;
-        this._BrightnessSlider.setValue(value);
-        }
-    }));
+            } else {
+                let value = result / 100;
+                this._BrightnessSlider.setValue(value);
+            }
+        }));
 
         this.menu.addMenuItem(new PopupMenu.PopupMenuItem(_("Brightness"), { reactive: false }));
-    this._BrightnessSlider = new PopupMenu.PopupSliderMenuItem(0);
-    this.menu.addMenuItem(this._BrightnessSlider);
-    this._BrightnessSlider.connect('value-changed', function(item) {
-        let val = item._value * 100;
-        _proxy.SetPercentageRemote(val);
-    });
+        this._BrightnessSlider = new PopupMenu.PopupSliderMenuItem(0);
+        this.menu.addMenuItem(this._BrightnessSlider);
+        this._BrightnessSlider.connect('value-changed', function(item) {
+            let val = item._value * 100;
+            _proxy.SetPercentageRemote(val);
+        });
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         this._screenKeyboardItem = new PopupSwitchMenuItem(
-        _("Screen Keyboard"),
-        null,
-        this.a11y_applications_settings.get_boolean("screen-keyboard-enabled"),
-        Lang.bind(this, function() {
-        let val = this.a11y_applications_settings.get_boolean("screen-keyboard-enabled");
+            _("Screen Keyboard"),
+            null,
+            this.a11y_applications_settings.get_boolean("screen-keyboard-enabled"),
+            Lang.bind(this, function() {
+                let val = this.a11y_applications_settings.get_boolean("screen-keyboard-enabled");
                 logging("ui-toggle: onscreen keyboard, " + val);
-        this.a11y_applications_settings.set_boolean("screen-keyboard-enabled", !val);
-        }));
+                this.a11y_applications_settings.set_boolean("screen-keyboard-enabled", !val);
+            }));
         this.menu.addMenuItem(this._screenKeyboardItem);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
         this.a11y_applications_settings.connect('changed::screen-keyboard-enabled', Lang.bind(this, function() {
-        let val = this.a11y_applications_settings.get_boolean("screen-keyboard-enabled");
-        logging("gsettings: onscreen keyboard changed to " + val);
-        this._screenKeyboardItem.setToggleState(val);
-    }));
+            let val = this.a11y_applications_settings.get_boolean("screen-keyboard-enabled");
+            logging("gsettings: onscreen keyboard changed to " + val);
+            this._screenKeyboardItem.setToggleState(val);
+        }));
 
         this._touchpadItem = new PopupSwitchMenuItem(_("Touchpad"), 0,
-            this._touchpad_enabled(), onMenuSelect);
+                                                     this._touchpad_enabled(), onMenuSelect);
         this._trackpointItem = new PopupSwitchMenuItem(_("Trackpoint"), 1,
-            this.trackpoint._all_devices_enabled(), onMenuSelect);
+                                                       this.trackpoint._all_devices_enabled(), onMenuSelect);
         this._fingertouchItem = new PopupSwitchMenuItem(_("Finger touch"), 2,
-            this.fingertouch._all_devices_enabled(), onMenuSelect);
+                                                        this.fingertouch._all_devices_enabled(), onMenuSelect);
         this._penItem = new PopupSwitchMenuItem(_("Pen"), 3,
-            this.pen._all_devices_enabled(), onMenuSelect);
+                                                this.pen._all_devices_enabled(), onMenuSelect);
         this._SettingsItem = new PopupMenuItem(_("Indicator Settings"), 9,
-            onMenuSelect);
+                                               onMenuSelect);
 
         this.menu.addMenuItem(this._touchpadItem);
         if (this.trackpoint.is_there_device)
@@ -1567,10 +1567,10 @@ TabletButton.prototype = {
             this.menu.addMenuItem(this._penItem);
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-    this._rotate = new Rotate(this.menu);
+        this._rotate = new Rotate(this.menu);
 
         this.menu.addSettingsAction(_("Touchpad Settings"),
-            'gnome-mouse-panel.desktop');
+                                    'gnome-mouse-panel.desktop');
         this.menu.addMenuItem(this._SettingsItem);
 
         this._onMousePlugged();
@@ -1610,44 +1610,44 @@ TabletButton.prototype = {
     _connectConfig: function() {
         //this are no real connections
         this.settings.connect('first-time', Lang.bind(this,
-            this._loadConfig));
+                                                      this._loadConfig));
         this.settings.connect('touchpad-enabled', Lang.bind(this,
-            this._loadConfig));
+                                                            this._loadConfig));
         this.settings.connect('trackpoint-enabled', Lang.bind(this,
-            this._loadConfig));
+                                                              this._loadConfig));
         this.settings.connect('fingertouch-enabled', Lang.bind(this,
-            this._loadConfig));
+                                                               this._loadConfig));
         this.settings.connect('pen-enabled', Lang.bind(this,
-            this._loadConfig));
+                                                       this._loadConfig));
         this.settings.connect('auto-switch-touchpad', Lang.bind(this,
-            this._loadConfig));
+                                                                this._loadConfig));
         this.settings.connect('auto-switch-trackpoint', Lang.bind(this,
-            this._loadConfig));
+                                                                  this._loadConfig));
         this.settings.connect('show-notifications', Lang.bind(this,
-            this._loadConfig));
+                                                              this._loadConfig));
         this.settings.connect('debug', Lang.bind(this, this._loadConfig));
         this.settings.connect('debug-to-file', Lang.bind(this,
-            this._loadConfig));
+                                                         this._loadConfig));
         this.settings.connect('switch-method', Lang.bind(this,
-            this._loadConfig));
+                                                         this._loadConfig));
         this.settings.connect('possible-touchpad', Lang.bind(this,
-            this._possible_touchpad_changed));
+                                                             this._possible_touchpad_changed));
         this.settings.connect('excluded-mouses', Lang.bind(this,
-            this._excluded_mouses_changed));
+                                                           this._excluded_mouses_changed));
     },
 
     _onChangeIcon: function(write_setting) {
         logging('TabletButton._onChangeIcon()');
         if (!this._touchpad_enabled()) {
             PanelMenu.SystemStatusButton.prototype.setIcon.call(this,
-                'touchpad-disabled');
+                                                                'touchpad-disabled');
             PopupMenu.PopupSwitchMenuItem.prototype.setToggleState.call(
                 this._touchpadItem, false);
             if (write_setting !== undefined && write_setting)
                 this.settings.set_boolean('touchpad-enabled', false);
         } else {
             PanelMenu.SystemStatusButton.prototype.setIcon.call(this,
-                'input-touchpad');
+                                                                'input-touchpad');
             PopupMenu.PopupSwitchMenuItem.prototype.setToggleState.call(
                 this._touchpadItem, true);
             if (write_setting !== undefined && write_setting)
@@ -1659,15 +1659,15 @@ TabletButton.prototype = {
         logging('TabletButton._onChangeSwitchMethod()');
         touchpad_enabled = this._CONF_touchpadEnabled;
         switch (old_method) {
-            case METHOD.GCONF:
-                this.touchpad.set_boolean('touchpad-enabled', true);
-                break;
-            case METHOD.SYNCLIENT:
-                this.synclient._enable();
-                break;
-            case METHOD.XINPUT:
-                this.touchpadXinput._enable_all_devices();
-                break;
+        case METHOD.GCONF:
+            this.touchpad.set_boolean('touchpad-enabled', true);
+            break;
+        case METHOD.SYNCLIENT:
+            this.synclient._enable();
+            break;
+        case METHOD.XINPUT:
+            this.touchpadXinput._enable_all_devices();
+            break;
         }
         this.settings.set_boolean('touchpad-enabled', touchpad_enabled)
         if (touchpad_enabled) {
@@ -1680,8 +1680,8 @@ TabletButton.prototype = {
     _onMousePlugged: function() {
         logging('TabletButton._onMousePlugged()');
         if (this._CONF_autoSwitchTouchpad ||
-                (this._CONF_autoSwitchTrackpoint &&
-                this.trackpoint.is_there_device)) {
+            (this._CONF_autoSwitchTrackpoint &&
+             this.trackpoint.is_there_device)) {
             if (METHOD.SYNCLIENT == this._CONF_switchMethod) {
                 let synclient_in_use = this.synclient.synclient_in_use;
                 this.synclient._is_synclient_still_in_use();
@@ -1689,7 +1689,7 @@ TabletButton.prototype = {
                     if (this.synclient.synclient_in_use) {
                         if (!this.touchpad.get_boolean('touchpad-enabled'))
                             this.touchpad.set_boolean('touchpad-enabled',
-                                true);
+                                                      true);
                         this.synclient._watch();
                         if (this._CONF_touchpadEnabled) {
                             this.synclient._enable();
@@ -1700,7 +1700,7 @@ TabletButton.prototype = {
                         this.synclient._cancel();
                         this.settings.set_enum('switch-method', METHOD.GCONF);
                         this.touchpad.set_boolean('touchpad-enabled',
-                            this._CONF_touchpadEnabled);
+                                                  this._CONF_touchpadEnabled);
                     }
                 }
             }
@@ -1718,13 +1718,13 @@ TabletButton.prototype = {
                 }
             }
             if (this._CONF_autoSwitchTrackpoint &&
-                    this.trackpoint.is_there_device) {
+                this.trackpoint.is_there_device) {
                 note_tpt = true;
                 if (is_mouse && this.trackpoint._all_devices_enabled()) {
                     this._disable_trackpoint();
                     tpt = false;
                 } else if (!is_mouse &&
-                        !this.trackpoint._all_devices_enabled()) {
+                           !this.trackpoint._all_devices_enabled()) {
                     this._enable_trackpoint();
                     tpt = true;
                 }
@@ -1780,31 +1780,31 @@ TabletButton.prototype = {
     _disable_touchpad: function() {
         logging('TabletButton._disable_touchpad()');
         switch (this._CONF_switchMethod) {
-            case METHOD.GCONF:
+        case METHOD.GCONF:
+            this.settings.set_boolean('touchpad-enabled', false);
+            if (this.touchpad.set_boolean('touchpad-enabled', false)) {
+                return true;
+            } else {
+                return false;
+            }
+            break;
+        case METHOD.SYNCLIENT:
+            if (this.synclient._disable()) {
                 this.settings.set_boolean('touchpad-enabled', false);
-                if (this.touchpad.set_boolean('touchpad-enabled', false)) {
-                    return true;
-                } else {
-                    return false;
-                }
-                break;
-            case METHOD.SYNCLIENT:
-                if (this.synclient._disable()) {
-                    this.settings.set_boolean('touchpad-enabled', false);
-                    this._onChangeIcon(false);
-                    return true;
-                } else {
-                    return false;
-                }
-                break;
-            case METHOD.XINPUT:
-                if (this.touchpadXinput._disable_all_devices()) {
-                    this.settings.set_boolean('touchpad-enabled', false);
-                    this._onChangeIcon(false);
-                } else {
-                    return false;
-                }
-                break;
+                this._onChangeIcon(false);
+                return true;
+            } else {
+                return false;
+            }
+            break;
+        case METHOD.XINPUT:
+            if (this.touchpadXinput._disable_all_devices()) {
+                this.settings.set_boolean('touchpad-enabled', false);
+                this._onChangeIcon(false);
+            } else {
+                return false;
+            }
+            break;
         }
         return false;
     },
@@ -1812,31 +1812,31 @@ TabletButton.prototype = {
     _enable_touchpad: function() {
         logging('TabletButton._enable_touchpad()');
         switch (this._CONF_switchMethod) {
-            case METHOD.GCONF:
+        case METHOD.GCONF:
+            this.settings.set_boolean('touchpad-enabled', true);
+            if (this.touchpad.set_boolean('touchpad-enabled', true)) {
+                return true;
+            } else {
+                return false;
+            }
+            break;
+        case METHOD.SYNCLIENT:
+            if (this.synclient._enable()) {
                 this.settings.set_boolean('touchpad-enabled', true);
-                if (this.touchpad.set_boolean('touchpad-enabled', true)) {
-                    return true;
-                } else {
-                    return false;
-                }
-                break;
-            case METHOD.SYNCLIENT:
-                if (this.synclient._enable()) {
-                    this.settings.set_boolean('touchpad-enabled', true);
-                    this._onChangeIcon(false);
-                    return true;
-                } else {
-                    return false;
-                }
-                break;
-            case METHOD.XINPUT:
-                if (this.touchpadXinput._enable_all_devices()) {
-                    this.settings.set_boolean('touchpad-enabled', true);
-                    this._onChangeIcon(false);
-                } else {
-                    return false;
-                }
-                break;
+                this._onChangeIcon(false);
+                return true;
+            } else {
+                return false;
+            }
+            break;
+        case METHOD.XINPUT:
+            if (this.touchpadXinput._enable_all_devices()) {
+                this.settings.set_boolean('touchpad-enabled', true);
+                this._onChangeIcon(false);
+            } else {
+                return false;
+            }
+            break;
         }
         return false;
     },
@@ -1844,16 +1844,16 @@ TabletButton.prototype = {
     _touchpad_enabled: function() {
         return this._CONF_touchpadEnabled;
         /*switch (this._CONF_switchMethod) {
-            case METHOD.GCONF:
-                return this.touchpad.get_boolean('touchpad-enabled');
-                break;
-            case METHOD.SYNCLIENT:
-                return !this.synclient.synclient_status;
-                break;
-            case METHOD.XINPUT:
-                return this.touchpadXinput._all_devices_enabled();
-                break;
-        }*/
+          case METHOD.GCONF:
+          return this.touchpad.get_boolean('touchpad-enabled');
+          break;
+          case METHOD.SYNCLIENT:
+          return !this.synclient.synclient_status;
+          break;
+          case METHOD.XINPUT:
+          return this.touchpadXinput._all_devices_enabled();
+          break;
+          }*/
     },
 
     _possible_touchpad_changed: function() {
@@ -1959,7 +1959,7 @@ TabletButton.prototype = {
             'changed::touchpad-enabled', onSwitchGconf);
         this.watch_mouse = watch_mouse();
         this.signal_watchMouse = this.watch_mouse.connect('changed',
-            onMousePlugged);
+                                                          onMousePlugged);
         if (this._CONF_switchMethod == METHOD.SYNCLIENT)
             this.synclient._watch();
     },
@@ -1978,37 +1978,37 @@ let tablet;
 function onMenuSelect(actor, event) {
     logging('onMenuSelect: actor - "'+actor.toString()+'"');
     switch (actor.tag) {
-        case 0:
-            if (actor.state) {
-                tablet._enable_touchpad();
-            } else {
-                tablet._disable_touchpad();
-            }
-            break;
-        case 1:
-            if (actor.state) {
-                tablet._enable_trackpoint();
-            } else {
-                tablet._disable_trackpoint();
-            }
-            break;
-        case 2:
-            if (actor.state) {
-                tablet._enable_fingertouch();
-            } else {
-                tablet._disable_fingertouch();
-            }
-            break;
-        case 3:
-            if (actor.state) {
-                tablet._enable_pen();
-            } else {
-                tablet._disable_pen();
-            }
-            break;
-        case 9:
-            tablet._settings_menu();
-            break
+    case 0:
+        if (actor.state) {
+            tablet._enable_touchpad();
+        } else {
+            tablet._disable_touchpad();
+        }
+        break;
+    case 1:
+        if (actor.state) {
+            tablet._enable_trackpoint();
+        } else {
+            tablet._disable_trackpoint();
+        }
+        break;
+    case 2:
+        if (actor.state) {
+            tablet._enable_fingertouch();
+        } else {
+            tablet._disable_fingertouch();
+        }
+        break;
+    case 3:
+        if (actor.state) {
+            tablet._enable_pen();
+        } else {
+            tablet._disable_pen();
+        }
+        break;
+    case 9:
+        tablet._settings_menu();
+        break
     }
 };
 
@@ -2022,7 +2022,7 @@ function onChangeIcon(write_setting) {
 
 function onSwitchGconf() {
     tablet.settings.set_boolean('touchpad-enabled',
-        tablet.touchpad.get_boolean('touchpad-enabled'));
+                                tablet.touchpad.get_boolean('touchpad-enabled'));
     tablet._onChangeIcon();
 };
 
@@ -2038,7 +2038,7 @@ function onChangeSwitchMethod(old_method, new_method) {
 // Put your extension initialization code here
 function init(metadata) {
     imports.gettext.bindtextdomain('tablet-computer@nedko.arnaudov.name',
-        GLib.build_filenamev([metadata.path, 'locale']));
+                                   GLib.build_filenamev([metadata.path, 'locale']));
 };
 
 function enable() {
@@ -2047,11 +2047,11 @@ function enable() {
 
     if(tablet.settings.get_boolean("first-time"))
         TIMEOUT_SETTINGSDIALOG = Mainloop.timeout_add(3000,
-            Lang.bind(this, function() {
-                TIMEOUT_SETTINGSDIALOG = false;
-                new SettingsDialog(tablet);
-                tablet.settings.set_boolean("first-time", false);
-            }));
+                                                      Lang.bind(this, function() {
+                                                          TIMEOUT_SETTINGSDIALOG = false;
+                                                          new SettingsDialog(tablet);
+                                                          tablet.settings.set_boolean("first-time", false);
+                                                      }));
 };
 
 function disable() {
