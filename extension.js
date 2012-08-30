@@ -1328,6 +1328,15 @@ Rotate.prototype = {
         });
     },
 
+    _rotateWacom: function(index) {
+        logging("index = " + index);
+        let [bitmask, wacom, name] = rotations[index];
+        // ugly workaround for wacom support. settings-daemon xrandr plugin is supposed to handle this instead
+        logging("" + bitmask + "," + wacom + "," + name);
+        for (let w = 0; w < wacom_devices.length; w++)
+            GLib.spawn_command_line_async('xsetwacom set ' + wacom_devices[w] + ' rotate ' + wacom);
+    },
+
     _addOutputItem: function(config, output) {
         let item = new PopupMenu.PopupMenuItem(output.get_display_name());
         item.label.add_style_class_name('display-subtitle');
@@ -1337,27 +1346,28 @@ Rotate.prototype = {
 
         let allowedRotations = this._getAllowedRotations(config, output);
         let currentRotation = output.get_rotation();
+        let currentRotationIndex = -1;
         for (let i = 0; i < rotations.length; i++) {
             let [bitmask, wacom, name] = rotations[i];
             if (bitmask & allowedRotations) {
                 let item = new PopupMenu.PopupMenuItem(Gettext.gettext(name));
-                if (bitmask & currentRotation)
+                if (bitmask & currentRotation) {
                     item.setShowDot(true);
+                    currentRotationIndex = i;
+                }
                 item.connect('activate', Lang.bind(this, function(item, event) {
-                    // ugly workaround for wacom support. settings-daemon xrandr plugin is supposed to handle this instead
-                    logging("" + bitmask + "," + wacom);
-                    for (let w = 0; w < wacom_devices.length; w++)
-                        GLib.spawn_command_line_async('xsetwacom set ' + wacom_devices[w] + ' rotate ' + wacom);
-
+                    logging("Rotating to " + name);
                     try {
                         this._proxy.RotateToRemote(bitmask, event.get_time());
                     } catch (e) {
-                        log ('Could not save monitor configuration: ' + e);
+                        logging('Could not save monitor configuration: ' + e);
                     }
                 }));
                 this._addMenuItem(item);
             }
         }
+
+        this._rotateWacom(currentRotationIndex);
     },
 
     _getAllowedRotations: function(config, output) {
